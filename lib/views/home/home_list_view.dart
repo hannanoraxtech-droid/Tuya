@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_house/core/platform_channel/tuya_channel.dart';
 import 'package:smart_house/views/home/home_detail_view.dart';
 import '../../providers/home_provider.dart';
 import 'add_home_dialog.dart';
@@ -32,6 +33,11 @@ class _HomeListViewState extends State<HomeListView> {
             onPressed: () {
               context.read<HomeProvider>().fetchHomes();
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+            onPressed: () => _showLogoutConfirmation(context),
           ),
         ],
       ),
@@ -266,6 +272,67 @@ class _HomeListViewState extends State<HomeListView> {
               }
             },
             child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+
+              // Show loading dialog
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (loadingContext) => WillPopScope(
+                  onWillPop: () async => false,
+                  child: const AlertDialog(
+                    content: Row(
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(width: 20),
+                        Text('Logging out...'),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+
+              try {
+                await TuyaChannel.logout();
+                if (context.mounted) {
+                  // Close loading dialog
+                  Navigator.pop(context);
+                  // Navigate to login
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/login', (route) => false);
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  // Close loading dialog
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Logout failed: $e')));
+                }
+              }
+            },
+            child: const Text('Logout'),
           ),
         ],
       ),

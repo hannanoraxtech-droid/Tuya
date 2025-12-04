@@ -128,7 +128,7 @@ class _HomeDetailViewState extends State<HomeDetailView> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Home Header Card
             Card(
