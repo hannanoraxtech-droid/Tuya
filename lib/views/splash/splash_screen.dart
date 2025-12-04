@@ -31,12 +31,12 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacementNamed(context, '/home');
       } else {
         // Not logged in → go to Email Input Screen
-        Navigator.pushReplacementNamed(context, '/emailInput');
+        Navigator.pushReplacementNamed(context, '/login');
       }
     } catch (e) {
       // On error, navigate to email input screen
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/emailInput');
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 

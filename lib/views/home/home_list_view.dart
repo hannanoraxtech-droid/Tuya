@@ -286,15 +286,39 @@ class _HomeListViewState extends State<HomeListView> {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () async {
               Navigator.pop(dialogContext);
+
+              // Show loading dialog
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (loadingContext) => WillPopScope(
+                  onWillPop: () async => false,
+                  child: const AlertDialog(
+                    content: Row(
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(width: 20),
+                        Text('Logging out...'),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+
               try {
                 await TuyaChannel.logout();
                 if (context.mounted) {
+                  // Close loading dialog
+                  Navigator.pop(context);
+                  // Navigate to login
                   Navigator.of(
                     context,
-                  ).pushNamedAndRemoveUntil('/emailInput', (route) => false);
+                  ).pushNamedAndRemoveUntil('/login', (route) => false);
                 }
               } catch (e) {
                 if (context.mounted) {
+                  // Close loading dialog
+                  Navigator.pop(context);
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text('Logout failed: $e')));

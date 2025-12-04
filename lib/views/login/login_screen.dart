@@ -116,16 +116,33 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Logging in..."),
-                            backgroundColor: Colors.green,
+                        // Show loading dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (loadingContext) => WillPopScope(
+                            onWillPop: () async => false,
+                            child: const AlertDialog(
+                              content: Row(
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(width: 20),
+                                  Text('Logging in...'),
+                                ],
+                              ),
+                            ),
                           ),
                         );
 
                         final success = await vm.login();
 
+                        if (context.mounted) {
+                          // Close loading dialog
+                          Navigator.pop(context);
+                        }
+
                         if (success) {
+                          Navigator.pushReplacementNamed(context, '/home');
                           _emailController.clear();
                           _passwordController.clear();
                         }
@@ -143,6 +160,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: const Text(
                     "Forgot Password?",
+                    style: TextStyle(
+                      color: Colors.teal,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/emailInput',
+                    ); // Define this route
+                  },
+                  child: const Text(
+                    "Don't have an account?",
                     style: TextStyle(
                       color: Colors.teal,
                       fontWeight: FontWeight.bold,
